@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevTools MCP - Google DevFest Workshop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #34a853;
+            --accent-color: #ea4335;
+            --text-dark: #202124;
+            --text-light: #5f6368;
+            --bg-light: #f8f9fa;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Roboto, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+            background: var(--bg-light);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary-color);
+        }
+
+        /* Hero Section */
+        .page-hero {
+            background: var(--gradient-1);
+            padding: 150px 2rem 80px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-hero::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveBackground 20s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .page-hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 1s ease;
+        }
+
+        .page-hero p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Content Section */
+        .content-section {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-1);
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .content-card h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .content-card h2 .icon {
+            font-size: 2.5rem;
+        }
+
+        .content-card h3 {
+            font-size: 1.8rem;
+            margin: 2rem 0 1rem;
+            color: var(--primary-color);
+        }
+
+        .content-card p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .content-card ul {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .content-card li {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            line-height: 2;
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        .highlight-box p {
+            margin: 0;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .code-block code {
+            color: #d4d4d4;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-item {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .feature-item h4 {
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .feature-item p {
+            color: var(--text-light);
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .content-card {
+                padding: 2rem;
+            }
+
+            .content-card h2 {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">🚀 DevFest Workshop</a>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="gdg-devfest.html">GDG & DevFest</a></li>
+                <li><a href="devtools-mcp.html" class="active">DevTools MCP</a></li>
+                <li><a href="about.html">关于我</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="page-hero-content">
+            <h1>Chrome DevTools MCP Server</h1>
+            <p>让 AI 助手直接控制浏览器，开启智能化开发新体验</p>
+        </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="content-section">
+        <!-- What is MCP Card -->
+        <div class="content-card fade-in">
+            <h2><span class="icon">🤖</span>什么是 Model Context Protocol (MCP)?</h2>
+            <p>
+                Model Context Protocol (MCP) 是一个开放标准，用于连接 AI 助手和外部数据源及工具。
+                它允许 AI 模型访问实时信息、执行操作，并与各种服务和系统进行交互。
+            </p>
+            <p>
+                MCP 的核心思想是让 AI 助手能够：
+            </p>
+            <ul>
+                <li>访问外部数据源和 API</li>
+                <li>执行复杂的操作和任务</li>
+                <li>与开发工具和系统集成</li>
+                <li>提供更智能、更实用的助手体验</li>
+            </ul>
+        </div>
+
+        <!-- DevTools MCP Card -->
+        <div class="content-card fade-in">
+            <h2><span class="icon">🛠️</span>Chrome DevTools MCP Server</h2>
+            <p>
+                Chrome DevTools MCP Server 是一个基于 Model Context Protocol 的服务器实现，
+                它通过 Chrome DevTools Protocol (CDP) 让 AI 助手能够直接控制和检查浏览器。
+            </p>
+
+            <h3>核心功能</h3>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h4>🌐 页面导航</h4>
+                    <p>控制浏览器打开、关闭、导航页面</p>
+                </div>
+                <div class="feature-item">
+                    <h4>📸 截图和快照</h4>
+                    <p>捕获页面截图和可访问性快照</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🔍 元素操作</h4>
+                    <p>点击、输入、悬停等交互操作</p>
+                </div>
+                <div class="feature-item">
+                    <h4>📊 性能分析</h4>
+                    <p>记录和分析页面性能指标</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🐛 调试工具</h4>
+                    <p>访问控制台、网络请求等调试信息</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🎨 样式调整</h4>
+                    <p>实时修改页面样式和布局</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Use Cases Card -->
+        <div class="content-card fade-in">
+            <h2><span class="icon">💡</span>应用场景</h2>
+            
+            <h3>1. 自动化测试</h3>
+            <p>
+                通过 AI 助手自动执行测试用例，验证页面功能和交互。
+                无需编写复杂的测试脚本，只需用自然语言描述测试需求。
+            </p>
+
+            <h3>2. 性能优化</h3>
+            <p>
+                AI 助手可以自动分析页面性能，识别性能瓶颈，
+                并提供优化建议和实施方案。
+            </p>
+
+            <h3>3. 页面调试</h3>
+            <p>
+                快速定位和修复页面问题，AI 助手可以检查控制台错误、
+                网络请求、DOM 结构等，帮助开发者快速解决问题。
+            </p>
+
+            <h3>4. 内容提取</h3>
+            <p>
+                自动从网页中提取结构化数据，进行数据分析和处理。
+            </p>
+
+            <h3>5. 交互式开发</h3>
+            <p>
+                在开发过程中，通过自然语言与 AI 助手交互，
+                实时调整页面样式、测试功能、验证效果。
+            </p>
+        </div>
+
+        <!-- Technical Details Card -->
+        <div class="content-card fade-in">
+            <h2><span class="icon">⚙️</span>技术架构</h2>
+            
+            <h3>基于 Chrome DevTools Protocol</h3>
+            <p>
+                Chrome DevTools Protocol (CDP) 是 Chrome 浏览器提供的调试协议，
+                它允许外部工具通过 WebSocket 连接与浏览器进行通信。
+            </p>
+
+            <h3>MCP 服务器实现</h3>
+            <p>
+                DevTools MCP Server 实现了 MCP 标准，将 CDP 的功能封装成 MCP 工具，
+                使得 AI 助手可以通过标准化的接口控制浏览器。
+            </p>
+
+            <div class="highlight-box">
+                <p>
+                    🔗 了解更多：<a href="https://github.com/ChromeDevTools/chrome-devtools-mcp" target="_blank" style="color: var(--primary-color);">GitHub Repository</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Getting Started Card -->
+        <div class="content-card fade-in">
+            <h2><span class="icon">🚀</span>快速开始</h2>
+            
+            <h3>安装和配置</h3>
+            <p>要使用 Chrome DevTools MCP Server，你需要：</p>
+            <ol style="margin-left: 2rem; margin-bottom: 1.5rem;">
+                <li style="margin-bottom: 0.5rem;">安装 Node.js 环境</li>
+                <li style="margin-bottom: 0.5rem;">安装 Chrome DevTools MCP Server</li>
+                <li style="margin-bottom: 0.5rem;">配置 MCP 客户端（如 Cursor、Claude Desktop）</li>
+                <li style="margin-bottom: 0.5rem;">启动服务器并连接浏览器</li>
+            </ol>
+
+            <h3>基本使用示例</h3>
+            <div class="code-block">
+                <code>
+# 通过 AI 助手控制浏览器<br>
+1. 打开网页：打开 https://example.com<br>
+2. 截图：为当前页面截图<br>
+3. 查找元素：找到登录按钮<br>
+4. 点击操作：点击登录按钮<br>
+5. 填写表单：在用户名输入框输入 "user"
+                </code>
+            </div>
+
+            <div class="highlight-box">
+                <p>
+                    💡 在本次 Workshop 中，我们将通过实际案例学习如何使用 DevTools MCP Server
+                    进行网页操作、样式调整和性能分析。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="index.html">首页</a>
+                <a href="gdg-devfest.html">GDG & DevFest</a>
+                <a href="devtools-mcp.html">DevTools MCP</a>
+                <a href="about.html">关于我</a>
+            </div>
+            <p>&copy; 2025 Google DevFest Workshop - Chrome DevTools MCP Server</p>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
